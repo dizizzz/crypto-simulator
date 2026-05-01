@@ -41,6 +41,19 @@ public final class WorldState {
         return sum;
     }
 
+    public void rewardMiner(Address minerAddress, long totalFees) {
+        if (minerAddress == null) {
+            throw new IllegalArgumentException("Miner address must not be null");
+        }
+        if (totalFees < 0) {
+            throw new IllegalArgumentException("Total fees must be non-negative");
+        }
+        if (totalFees == 0) {
+            return;
+        }
+        credit(minerAddress, totalFees);
+    }
+
     public Map<Address, Account> snapshot() {
         return Collections.unmodifiableMap(new LinkedHashMap<>(accounts));
     }

@@ -19,6 +19,7 @@ public final class Blockchain {
     private final BigInteger genesisTarget;
     private final WorldState worldState;
     private final List<Block> blocks;
+    private static final Address GENESIS_MINER_ADDRESS = new Address("0".repeat(40));
 
     public Blockchain(Map<Address, Long> initialBalances, BigInteger genesisTarget) {
         if (initialBalances == null) {
@@ -41,7 +42,8 @@ public final class Blockchain {
                 Block.txRoot(List.of()),
                 GENESIS_TIMESTAMP,
                 genesisTarget,
-                0
+                0,
+                GENESIS_MINER_ADDRESS
         );
         return new Block(header, List.of());
     }
@@ -82,6 +84,12 @@ public final class Blockchain {
         for (Transaction tx : block.transactions()) {
             Validator.apply(tx, worldState);
         }
+
+        long totalFees = 0;
+        for (Transaction tx : block.transactions()) {
+            totalFees += tx.fee();
+        }
+        worldState.rewardMiner(block.header().minerAddress(), totalFees);
 
         blocks.add(block);
         return BlockValidationResult.OK;
