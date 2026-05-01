@@ -1,5 +1,6 @@
 package cryptosim.domain;
 
+import cryptosim.crypto.Hashing;
 import cryptosim.crypto.Signer;
 
 import java.nio.charset.StandardCharsets;
@@ -46,5 +47,9 @@ public record Transaction(
             return false;
         }
         return Signer.verify(dataToSign(), signature, senderPublicKey);
+    }
+
+    public String hash() {
+        return Hashing.sha256(dataToSign());
     }
 }

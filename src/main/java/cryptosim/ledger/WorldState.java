@@ -59,4 +59,21 @@ public final class WorldState {
         Account current = getAccount(address);
         accounts.put(address, new Account(current.balance(), current.nonce() + 1));
     }
+
+    public WorldState copy() {
+        Map<Address, Long> balances = new LinkedHashMap<>();
+        for (Map.Entry<Address, Account> entry : accounts.entrySet()) {
+            balances.put(entry.getKey(), entry.getValue().balance());
+        }
+        WorldState copy = new WorldState(balances);
+
+        for (Map.Entry<Address, Account> entry : accounts.entrySet()) {
+            long currentNonce = entry.getValue().nonce();
+            for (long i = 0; i < currentNonce; i++) {
+                copy.incrementNonce(entry.getKey());
+            }
+        }
+
+        return copy;
+    }
 }
