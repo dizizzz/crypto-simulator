@@ -1,5 +1,6 @@
 package cryptosim.chain;
 
+import cryptosim.domain.Address;
 import cryptosim.domain.Transaction;
 import cryptosim.domain.Wallet;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,8 @@ class BlockchainTest {
                 Block.txRoot(txs),
                 System.currentTimeMillis(),
                 EASY_TARGET,
-                0
+                0,
+                new Address("0".repeat(40))
         );
         return new Block(header, txs);
     }
@@ -93,7 +95,8 @@ class BlockchainTest {
                 Block.txRoot(List.of()),
                 System.currentTimeMillis(),
                 EASY_TARGET,
-                0
+                0,
+                new Address("0".repeat(40))
         );
         Block badBlock = new Block(badHeader, List.of());
 
@@ -110,7 +113,8 @@ class BlockchainTest {
                 Block.txRoot(List.of()),
                 System.currentTimeMillis(),
                 EASY_TARGET,
-                0
+                0,
+                new Address("0".repeat(40))
         );
         Block badBlock = new Block(badHeader, List.of());
 
@@ -134,7 +138,8 @@ class BlockchainTest {
                 Block.txRoot(List.of(realTx)),
                 System.currentTimeMillis(),
                 EASY_TARGET,
-                0
+                0,
+                new Address("0".repeat(40))
         );
         Block badBlock = new Block(header, List.of(fakeTx));
 
@@ -218,6 +223,78 @@ class BlockchainTest {
         chain.addBlock(block2);
 
         assertEquals(2, chain.height());
+        assertEquals(initialTotal, chain.worldState().totalSupply());
+    }
+
+    @Test
+    void addBlock_withFees_creditsMinerWithCoinbase() {
+        Wallet alice = Wallet.create();
+        Wallet bob = Wallet.create();
+        Wallet miner = Wallet.create();
+
+        Blockchain chain = new Blockchain(Map.of(
+                alice.getAddress(), 100L,
+                bob.getAddress(), 0L
+        ), EASY_TARGET);
+
+        Transaction tx1 = alice.createTransaction(bob.getAddress(), 10, 2, 0);
+        Transaction tx2 = alice.createTransaction(bob.getAddress(), 10, 3, 1);
+
+        BlockHeader header = new BlockHeader(
+                chain.getTip().header().index() + 1,
+                chain.getTip().hash(),
+                Block.txRoot(List.of(tx1, tx2)),
+                System.currentTimeMillis(),
+                EASY_TARGET,
+                0,
+                miner.getAddress()
+        );
+        Block block = new Block(header, List.of(tx1, tx2));
+
+        chain.addBlock(block);
+
+        // Аліса: 100 - 10 - 2 - 10 - 3 = 75
+        // Боб:   0 + 10 + 10 = 20
+        // Miner: 0 + 2 + 3 = 5
+        assertEquals(75, chain.worldState().getBalance(alice.getAddress()));
+        assertEquals(20, chain.worldState().getBalance(bob.getAddress()));
+        assertEquals(5, chain.worldState().getBalance(miner.getAddress()));
+    }
+
+    @Test
+    void addBlock_preservesTotalSupply_withNonZeroFees() {
+        Wallet alice = Wallet.create();
+        Wallet bob = Wallet.create();
+        Wallet charlie = Wallet.create();
+        Wallet miner = Wallet.create();
+
+        Blockchain chain = new Blockchain(Map.of(
+                alice.getAddress(), 100L,
+                bob.getAddress(), 50L,
+                charlie.getAddress(), 30L
+        ), EASY_TARGET);
+
+        long initialTotal = chain.worldState().totalSupply();
+        assertEquals(180L, initialTotal);
+
+        Transaction tx1 = alice.createTransaction(bob.getAddress(), 30, 2, 0);
+        Transaction tx2 = bob.createTransaction(charlie.getAddress(), 20, 1, 0);
+        Transaction tx3 = charlie.createTransaction(alice.getAddress(), 10, 3, 0);
+
+        BlockHeader header = new BlockHeader(
+                chain.getTip().header().index() + 1,
+                chain.getTip().hash(),
+                Block.txRoot(List.of(tx1, tx2, tx3)),
+                System.currentTimeMillis(),
+                EASY_TARGET,
+                0,
+                miner.getAddress()
+        );
+        Block block = new Block(header, List.of(tx1, tx2, tx3));
+
+        chain.addBlock(block);
+
+        // sum B = const
         assertEquals(initialTotal, chain.worldState().totalSupply());
     }
 }

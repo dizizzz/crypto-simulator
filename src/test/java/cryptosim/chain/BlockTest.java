@@ -1,5 +1,6 @@
 package cryptosim.chain;
 
+import cryptosim.domain.Address;
 import cryptosim.domain.Transaction;
 import cryptosim.domain.Wallet;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,8 @@ class BlockTest {
                 txRoot,
                 1000L,
                 BigInteger.TWO.pow(240),
-                nonce
+                nonce,
+                new Address("0".repeat(40))
         );
     }
 

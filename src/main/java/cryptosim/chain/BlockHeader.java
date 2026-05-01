@@ -2,6 +2,7 @@ package cryptosim.chain;
 
 import cryptosim.crypto.Hashing;
 
+import cryptosim.domain.Address;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
@@ -11,7 +12,8 @@ public record BlockHeader(
         String txRoot,
         long timestamp,
         BigInteger target,
-        long nonce
+        long nonce,
+        Address minerAddress
 ) {
 
     public BlockHeader {
@@ -30,6 +32,9 @@ public record BlockHeader(
         if (nonce < 0) {
             throw new IllegalArgumentException("Nonce must be non-negative");
         }
+        if (minerAddress == null) {
+            throw new IllegalArgumentException("Miner address must not be null");
+        }
     }
 
     public String hash() {
@@ -38,11 +43,12 @@ public record BlockHeader(
                 + "|" + txRoot
                 + "|" + timestamp
                 + "|" + target.toString(16)
-                + "|" + nonce;
+                + "|" + nonce
+                + "|" + minerAddress.hex();
         return Hashing.sha256(s.getBytes(StandardCharsets.UTF_8));
     }
 
     public BlockHeader withNoncee(long newNonce) {
-        return new BlockHeader(index, previousHash, txRoot, timestamp, target, newNonce);
+        return new BlockHeader(index, previousHash, txRoot, timestamp, target, newNonce, minerAddress);
     }
 }
