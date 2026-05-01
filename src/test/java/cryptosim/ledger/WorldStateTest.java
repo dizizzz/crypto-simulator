@@ -126,4 +126,47 @@ class WorldStateTest {
         assertThrows(IllegalArgumentException.class,
                 () -> new WorldState(initial));
     }
+
+    @Test
+    void copy_balancesPreserved_modificationDoesNotAffectOriginal() {
+        Address alice = randomAddress();
+        Address bob = randomAddress();
+        WorldState original = new WorldState(Map.of(
+                alice, 100L,
+                bob, 50L
+        ));
+
+        WorldState copy = original.copy();
+
+        assertEquals(100, copy.getBalance(alice));
+        assertEquals(50, copy.getBalance(bob));
+
+        copy.debit(alice, 30);
+        copy.credit(bob, 30);
+
+        assertEquals(70, copy.getBalance(alice));
+        assertEquals(80, copy.getBalance(bob));
+
+        assertEquals(100, original.getBalance(alice));
+        assertEquals(50, original.getBalance(bob));
+    }
+
+    @Test
+    void copy_noncesPreserved() {
+        Address alice = randomAddress();
+        WorldState original = new WorldState(Map.of(alice, 100L));
+
+        for (int i = 0; i < 5; i++) {
+            original.incrementNonce(alice);
+        }
+
+        WorldState copy = original.copy();
+
+        assertEquals(5, copy.getNonce(alice));
+        assertEquals(5, original.getNonce(alice));
+
+        copy.incrementNonce(alice);
+        assertEquals(6, copy.getNonce(alice));
+        assertEquals(5, original.getNonce(alice));
+    }
 }
