@@ -30,6 +30,13 @@ public final class Mempool {
         if (!tx.verifySignature()) {
             return false;
         }
+
+        for (Transaction existing : pool) {
+            if (existing.from().equals(tx.from())) {
+                return false;
+            }
+        }
+
         return pool.add(tx);
     }
 
