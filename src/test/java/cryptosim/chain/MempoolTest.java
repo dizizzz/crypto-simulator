@@ -63,10 +63,12 @@ class MempoolTest {
         Mempool mempool = new Mempool(2);
         Wallet alice = Wallet.create();
         Wallet bob = Wallet.create();
+        Wallet alice2 = Wallet.create();
+        Wallet alice3 = Wallet.create();
 
         Transaction tx1 = alice.createTransaction(bob.getAddress(), 5, 1, 0);
-        Transaction tx2 = alice.createTransaction(bob.getAddress(), 5, 1, 1);
-        Transaction tx3 = alice.createTransaction(bob.getAddress(), 5, 1, 2);
+        Transaction tx2 = alice2.createTransaction(bob.getAddress(), 5, 1, 1);
+        Transaction tx3 = alice3.createTransaction(bob.getAddress(), 5, 1, 2);
 
         assertTrue(mempool.add(tx1));
         assertTrue(mempool.add(tx2));
@@ -97,10 +99,12 @@ class MempoolTest {
         Mempool mempool = new Mempool(100);
         Wallet alice = Wallet.create();
         Wallet bob = Wallet.create();
+        Wallet alice2 = Wallet.create();
+        Wallet alice3 = Wallet.create();
 
         Transaction lowFee = alice.createTransaction(bob.getAddress(), 5, 1, 0);
-        Transaction midFee = alice.createTransaction(bob.getAddress(), 5, 5, 1);
-        Transaction highFee = alice.createTransaction(bob.getAddress(), 5, 10, 2);
+        Transaction midFee = alice2.createTransaction(bob.getAddress(), 5, 5, 1);
+        Transaction highFee = alice3.createTransaction(bob.getAddress(), 5, 10, 2);
 
         mempool.add(lowFee);
         mempool.add(highFee);
@@ -118,10 +122,12 @@ class MempoolTest {
         Mempool mempool = new Mempool(100);
         Wallet alice = Wallet.create();
         Wallet bob = Wallet.create();
+        Wallet alice2 = Wallet.create();
+        Wallet alice3 = Wallet.create();
 
         Transaction tx1 = alice.createTransaction(bob.getAddress(), 5, 1, 0);
-        Transaction tx2 = alice.createTransaction(bob.getAddress(), 5, 2, 1);
-        Transaction tx3 = alice.createTransaction(bob.getAddress(), 5, 3, 2);
+        Transaction tx2 = alice2.createTransaction(bob.getAddress(), 5, 2, 1);
+        Transaction tx3 = alice3.createTransaction(bob.getAddress(), 5, 3, 2);
 
         mempool.add(tx1);
         mempool.add(tx2);
@@ -137,9 +143,10 @@ class MempoolTest {
         Mempool mempool = new Mempool(100);
         Wallet alice = Wallet.create();
         Wallet bob = Wallet.create();
+        Wallet alice2 = Wallet.create();
 
         mempool.add(alice.createTransaction(bob.getAddress(), 5, 1, 0));
-        mempool.add(alice.createTransaction(bob.getAddress(), 5, 2, 1));
+        mempool.add(alice2.createTransaction(bob.getAddress(), 5, 2, 1));
 
         List<Transaction> drained = mempool.drain(100);
 
@@ -151,5 +158,20 @@ class MempoolTest {
     void constructor_invalidMaxSize_throwsException() {
         assertThrows(IllegalArgumentException.class, () -> new Mempool(0));
         assertThrows(IllegalArgumentException.class, () -> new Mempool(-1));
+    }
+
+    @Test
+    void add_secondTransactionFromSameSender_returnsFalse() {
+        Mempool mempool = new Mempool(100);
+        Wallet alice = Wallet.create();
+        Wallet bob = Wallet.create();
+
+        Transaction tx1 = alice.createTransaction(bob.getAddress(), 5, 1, 0);
+        Transaction tx2 = alice.createTransaction(bob.getAddress(), 10, 1, 1);
+
+        assertTrue(mempool.add(tx1));
+        assertFalse(mempool.add(tx2),
+                "Second tx from same sender should be rejected");
+        assertEquals(1, mempool.size());
     }
 }
