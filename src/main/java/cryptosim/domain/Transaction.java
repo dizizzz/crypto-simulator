@@ -1,5 +1,6 @@
 package cryptosim.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import cryptosim.crypto.Hashing;
 import cryptosim.crypto.Signer;
 
@@ -12,7 +13,7 @@ public record Transaction(
         long amount,
         long fee,
         long nonce,
-        PublicKey senderPublicKey,
+        @JsonIgnore PublicKey senderPublicKey,
         byte[] signature
 ) {
 
@@ -51,5 +52,14 @@ public record Transaction(
 
     public String hash() {
         return Hashing.sha256(dataToSign());
+    }
+
+    public String senderPublicKeyHex() {
+        byte[] encoded = senderPublicKey.getEncoded();
+        StringBuilder sb = new StringBuilder(encoded.length * 2);
+        for (byte b : encoded) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 }
