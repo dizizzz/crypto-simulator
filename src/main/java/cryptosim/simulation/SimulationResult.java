@@ -8,7 +8,8 @@ import java.util.List;
 public record SimulationResult(
         Blockchain blockchain,
         List<Wallet> wallets,
-        Address minerAddress
+        Address minerAddress,
+        NetworkStats stats
 ) {
 
     public SimulationResult {
@@ -20,6 +21,9 @@ public record SimulationResult(
         }
         if (minerAddress == null) {
             throw new IllegalArgumentException("Miner address must not be null");
+        }
+        if (stats == null) {
+            throw new IllegalArgumentException("Stats must not be null");
         }
         wallets = List.copyOf(wallets);
     }

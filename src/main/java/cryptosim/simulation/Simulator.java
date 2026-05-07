@@ -22,6 +22,18 @@ public final class Simulator {
 
     private final SimulationConfig config;
 
+    // Лічильники метрик
+    private long submittedCount = 0;
+    private long acceptedCount = 0;
+    private long confirmedCount = 0;
+    private long totalLatencyTicks = 0;
+    private long totalMiningTimeMs = 0;
+    private long totalNonceAttempts = 0;
+    private long totalFeesCollected = 0;
+
+
+    private final Map<Transaction, Long> submittedAtTick = new HashMap<>();
+
     public Simulator(SimulationConfig config) {
         if (config == null) {
             throw new IllegalArgumentException("Config must not be null");
@@ -54,7 +66,13 @@ public final class Simulator {
         for (long tick = 0; tick < config.totalTicks(); tick++) {
             if (tick % config.ticksPerTransaction() == 0) {
                 Optional<Transaction> tx = txGenerator.next();
-                tx.ifPresent(mempool::add);
+                if (tx.isPresent()) {
+                    submittedCount++;
+                    if (mempool.add(tx.get())) {
+                        acceptedCount++;
+                        submittedAtTick.put(tx.get(), tick);
+                    }
+                }
             }
 
             if (tick > 0 && tick % config.ticksPerBlock() == 0) {
@@ -62,7 +80,19 @@ public final class Simulator {
             }
         }
 
-        return new SimulationResult(blockchain, wallets, minerAddress);
+        // Будуємо NetworkStats з лічильникі
+        long totalBlocks = blockchain.height();
+        double avgMiningTimeMs = totalBlocks > 0 ? (double) totalMiningTimeMs / totalBlocks : 0.0;
+        double avgNonceAttempts = totalBlocks > 0 ? (double) totalNonceAttempts / totalBlocks : 0.0;
+        double avgLatency = confirmedCount > 0 ? (double) totalLatencyTicks / confirmedCount : 0.0;
+
+        NetworkStats stats = new NetworkStats(
+                submittedCount, acceptedCount, confirmedCount,
+                totalBlocks, config.totalTicks(), totalFeesCollected,
+                avgMiningTimeMs, avgNonceAttempts, avgLatency
+        );
+
+        return new SimulationResult(blockchain, wallets, minerAddress, stats);
     }
 
     private void mineBlock(Blockchain blockchain, Mempool mempool, Miner miner,
@@ -80,7 +110,20 @@ public final class Simulator {
                 minerAddress
         );
 
+        long miningStart = System.currentTimeMillis();
         Block mined = miner.mine(template, txs);
+        long miningDuration = System.currentTimeMillis() - miningStart;
         blockchain.addBlock(mined);
+
+        totalMiningTimeMs += miningDuration;
+        totalNonceAttempts += mined.header().nonce() + 1;
+        for (Transaction tx : txs) {
+            Long submitted = submittedAtTick.remove(tx);
+            if (submitted != null) {
+                totalLatencyTicks += tick - submitted;
+            }
+            totalFeesCollected += tx.fee();
+        }
+        confirmedCount += txs.size();
     }
 }

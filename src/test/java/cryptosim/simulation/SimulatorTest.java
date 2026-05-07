@@ -92,4 +92,45 @@ class SimulatorTest {
         SimulationResult result = simulator.run();
         assertTrue(result.blockchain().height() >= 1);
     }
+
+    @Test
+    void run_statsHasConsistentCounts() {
+        Simulator simulator = new Simulator(smallConfig(42L));
+
+        SimulationResult result = simulator.run();
+        NetworkStats stats = result.stats();
+
+        assertTrue(stats.submittedTransactions() >= stats.acceptedTransactions());
+        assertTrue(stats.acceptedTransactions() >= stats.confirmedTransactions());
+    }
+
+    @Test
+    void run_statsAggregatesAreSensible() {
+        Simulator simulator = new Simulator(smallConfig(42L));
+
+        SimulationResult result = simulator.run();
+        NetworkStats stats = result.stats();
+
+        assertTrue(stats.totalBlocks() > 0, "Expected at least one mined block");
+        assertTrue(stats.totalTicks() > 0);
+        assertTrue(stats.averageBlockMiningTimeMs() >= 0);
+        assertTrue(stats.averageNonceAttempts() > 0, "Each block requires at least one attempt");
+        assertTrue(stats.averageConfirmationLatencyTicks() >= 0);
+        assertTrue(stats.totalFeesPaid() >= 0);
+    }
+
+    @Test
+    void run_statsAreDeterministic() {
+        SimulationConfig config = smallConfig(123L);
+
+        NetworkStats stats1 = new Simulator(config).run().stats();
+        NetworkStats stats2 = new Simulator(config).run().stats();
+
+        assertEquals(stats1.submittedTransactions(), stats2.submittedTransactions());
+        assertEquals(stats1.acceptedTransactions(), stats2.acceptedTransactions());
+        assertEquals(stats1.confirmedTransactions(), stats2.confirmedTransactions());
+        assertEquals(stats1.totalBlocks(), stats2.totalBlocks());
+        assertEquals(stats1.totalFeesPaid(), stats2.totalFeesPaid());
+        assertEquals(stats1.averageConfirmationLatencyTicks(), stats2.averageConfirmationLatencyTicks(), 1e-9);
+    }
 }
