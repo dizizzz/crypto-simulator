@@ -1,5 +1,6 @@
 package cryptosim.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import cryptosim.crypto.KeyPairFactory;
 import cryptosim.crypto.Signer;
 
@@ -25,6 +26,7 @@ public final class Wallet {
         return address;
     }
 
+    @JsonIgnore
     public PublicKey getPublicKey() {
         return keyPair.getPublic();
     }
