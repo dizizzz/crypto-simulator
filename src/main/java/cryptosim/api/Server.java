@@ -20,6 +20,7 @@ public final class Server {
             config.bundledPlugins.enableCors(cors -> {
                 cors.addRule(rule -> rule.anyHost());
             });
+            config.staticFiles.add("/public", io.javalin.http.staticfiles.Location.CLASSPATH);
         });
 
         SimulationController controller = new SimulationController();

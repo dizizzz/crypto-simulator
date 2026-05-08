@@ -1,5 +1,6 @@
 package cryptosim.chain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cryptosim.domain.Address;
 import cryptosim.domain.Transaction;
 import cryptosim.ledger.Validator;
@@ -107,6 +108,7 @@ public final class Blockchain {
         return blocks.size() - 1;
     }
 
+    @JsonProperty("blocks")
     public List<Block> blocks() {
         return Collections.unmodifiableList(blocks);
     }

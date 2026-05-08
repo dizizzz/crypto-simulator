@@ -1,5 +1,6 @@
 package cryptosim.simulation;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import cryptosim.chain.Blockchain;
 import cryptosim.domain.Address;
 import cryptosim.domain.Wallet;
@@ -27,4 +28,19 @@ public record SimulationResult(
         }
         wallets = List.copyOf(wallets);
     }
+
+    @JsonProperty("finalBalances")
+    public List<ParticipantBalance> finalBalances() {
+        List<ParticipantBalance> result = new java.util.ArrayList<>();
+        for (int i = 0; i < wallets.size(); i++) {
+            Wallet w = wallets.get(i);
+            long balance = blockchain.worldState().getBalance(w.getAddress());
+            result.add(new ParticipantBalance("Wallet " + (i + 1), balance));
+        }
+        long minerBalance = blockchain.worldState().getBalance(minerAddress);
+        result.add(new ParticipantBalance("Miner", minerBalance));
+        return result;
+    }
+
+    public record ParticipantBalance(String label, long balance) {}
 }
