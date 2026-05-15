@@ -12,7 +12,6 @@ public final class Server {
         app.start(port);
 
         System.out.println("Crypto Simulator API running on http://localhost:" + port);
-        System.out.println("Try: POST http://localhost:" + port + "/simulate");
     }
 
     public static Javalin createApp() {

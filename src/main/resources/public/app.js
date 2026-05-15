@@ -3,6 +3,8 @@ const resultsSection = document.getElementById('results-section');
 const statusEl = document.getElementById('status');
 const metricsEl = document.getElementById('metrics');
 const runBtn = document.getElementById('run-btn');
+let balancesChart = null;
+let blocksChart = null;
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -46,9 +48,9 @@ function collectConfig() {
         numWallets: parseInt(document.getElementById('numWallets').value),
         initialBalancePerWallet: parseInt(document.getElementById('initialBalance').value),
         difficultyBits: parseInt(document.getElementById('difficultyBits').value),
-        totalTicks: parseInt(document.getElementById('totalTicks').value),
-        ticksPerTransaction: parseInt(document.getElementById('ticksPerTransaction').value),
-        ticksPerBlock: parseInt(document.getElementById('ticksPerBlock').value),
+        durationMs: parseInt(document.getElementById('durationMs').value),
+        transactionIntervalMs: parseInt(document.getElementById('transactionIntervalMs').value),
+        blockIntervalMs: parseInt(document.getElementById('blockIntervalMs').value),
         mempoolMaxSize: parseInt(document.getElementById('mempoolMaxSize').value),
         maxTransactionsPerBlock: 20
     };
@@ -67,7 +69,7 @@ function renderMetrics(result) {
         { label: 'Прийнято в мемпул', value: stats.acceptedTransactions },
         { label: 'Підтверджено в блок', value: stats.confirmedTransactions },
         { label: 'Сумарний fee', value: stats.totalFeesPaid },
-        { label: 'Середня латенсія', value: `${stats.averageConfirmationLatencyTicks.toFixed(1)} тіків` },
+        { label: 'Середня латенсія', value: `${stats.averageConfirmationLatencyMs.toFixed(1)} мс` },
         { label: 'Середня кількість спроб nonce', value: stats.averageNonceAttempts.toFixed(0) },
         { label: 'Час майнінгу (середній)', value: `${stats.averageBlockMiningTimeMs.toFixed(1)} мс` },
     ];
@@ -85,7 +87,11 @@ function renderBalancesChart(result) {
     const labels = balances.map(b => b.label);
     const values = balances.map(b => b.balance);
 
-    new Chart(document.getElementById('balances-chart'), {
+    if (balancesChart) {
+            balancesChart.destroy();
+    }
+
+    balancesChart = new Chart(document.getElementById('balances-chart'), {
         type: 'bar',
         data: {
             labels: labels,
@@ -112,7 +118,11 @@ function renderBlocksChart(result) {
         counts.push(blocks[i].transactions.length);
     }
 
-    new Chart(document.getElementById('blocks-chart'), {
+    if (blocksChart) {
+        blocksChart.destroy();
+    }
+
+    blocksChart = new Chart(document.getElementById('blocks-chart'), {
         type: 'bar',
         data: {
             labels: labels,
