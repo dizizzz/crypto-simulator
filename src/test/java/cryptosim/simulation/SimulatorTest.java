@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SimulatorTest {
     private static SimulationConfig smallConfig(long seed) {
-        return new SimulationConfig(seed, 5, 1000L, 12, 5000,
-                100, 500, 100, 10
+        return new SimulationConfig(seed, 5, 1000L, 12, 500,
+                100, 50, 100, 10
         );
     }
 
     @Test
-    void run_returnsValidResult() {
+    void run_returnsValidResult() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();
@@ -29,7 +29,7 @@ class SimulatorTest {
     }
 
     @Test
-    void run_producesAtLeastOneBlock() {
+    void run_producesAtLeastOneBlock() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();
@@ -39,7 +39,7 @@ class SimulatorTest {
     }
 
     @Test
-    void run_blockchainIsValid() {
+    void run_blockchainIsValid() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();
@@ -49,7 +49,7 @@ class SimulatorTest {
     }
 
     @Test
-    void run_preservesTotalSupply() {
+    void run_preservesTotalSupply() throws InterruptedException {
         SimulationConfig config = smallConfig(42L);
         long expectedTotal = (long) config.numWallets() * config.initialBalancePerWallet();
 
@@ -61,21 +61,7 @@ class SimulatorTest {
     }
 
     @Test
-    void run_isDeterministic() {
-        SimulationConfig config = smallConfig(123L);
-
-        SimulationResult run1 = new Simulator(config).run();
-        SimulationResult run2 = new Simulator(config).run();
-
-        assertEquals(run1.blockchain().height(), run2.blockchain().height());
-        assertEquals(
-                run1.blockchain().worldState().totalSupply(),
-                run2.blockchain().worldState().totalSupply()
-        );
-    }
-
-    @Test
-    void run_minerAccumulatesFees() {
+    void run_minerAccumulatesFees() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();
@@ -86,9 +72,9 @@ class SimulatorTest {
     }
 
     @Test
-    void run_emptyMempool_stillMinesBlocks() {
+    void run_emptyMempool_stillMinesBlocks() throws InterruptedException {
         SimulationConfig config = new SimulationConfig(42L, 5, 1000L, 12,
-                5000, 5000, 500, 100, 10
+                500, 5000, 50, 100, 10
         );
         Simulator simulator = new Simulator(config);
 
@@ -97,7 +83,7 @@ class SimulatorTest {
     }
 
     @Test
-    void run_statsHasConsistentCounts() {
+    void run_statsHasConsistentCounts() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();
@@ -108,37 +94,22 @@ class SimulatorTest {
     }
 
     @Test
-    void run_statsAggregatesAreSensible() {
+    void run_statsAggregatesAreSensible() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();
         NetworkStats stats = result.stats();
 
         assertTrue(stats.totalBlocks() > 0, "Expected at least one mined block");
-        assertTrue(stats.totalTicks() > 0);
+        assertTrue(stats.durationMs() > 0);
         assertTrue(stats.averageBlockMiningTimeMs() >= 0);
         assertTrue(stats.averageNonceAttempts() > 0, "Each block requires at least one attempt");
-        assertTrue(stats.averageConfirmationLatencyTicks() >= 0);
+        assertTrue(stats.averageConfirmationLatencyMs() >= 0);
         assertTrue(stats.totalFeesPaid() >= 0);
     }
 
     @Test
-    void run_statsAreDeterministic() {
-        SimulationConfig config = smallConfig(123L);
-
-        NetworkStats stats1 = new Simulator(config).run().stats();
-        NetworkStats stats2 = new Simulator(config).run().stats();
-
-        assertEquals(stats1.submittedTransactions(), stats2.submittedTransactions());
-        assertEquals(stats1.acceptedTransactions(), stats2.acceptedTransactions());
-        assertEquals(stats1.confirmedTransactions(), stats2.confirmedTransactions());
-        assertEquals(stats1.totalBlocks(), stats2.totalBlocks());
-        assertEquals(stats1.totalFeesPaid(), stats2.totalFeesPaid());
-        assertEquals(stats1.averageConfirmationLatencyTicks(), stats2.averageConfirmationLatencyTicks(), 1e-9);
-    }
-
-    @Test
-    void run_gCoeff_reflectsRealisticInequality() {
+    void run_gCoeff_reflectsRealisticInequality() throws InterruptedException {
         Simulator simulator = new Simulator(smallConfig(42L));
 
         SimulationResult result = simulator.run();

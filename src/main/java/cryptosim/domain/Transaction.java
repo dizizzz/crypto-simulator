@@ -53,13 +53,4 @@ public record Transaction(
     public String hash() {
         return Hashing.sha256(dataToSign());
     }
-
-    public String senderPublicKeyHex() {
-        byte[] encoded = senderPublicKey.getEncoded();
-        StringBuilder sb = new StringBuilder(encoded.length * 2);
-        for (byte b : encoded) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
-    }
 }

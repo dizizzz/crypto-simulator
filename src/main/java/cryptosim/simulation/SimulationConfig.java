@@ -2,7 +2,7 @@ package cryptosim.simulation;
 
 public record SimulationConfig(
         long seed, int numWallets, long initialBalancePerWallet, int difficultyBits,
-        int totalTicks, int ticksPerTransaction, int ticksPerBlock, int mempoolMaxSize, int maxTransactionsPerBlock
+        int durationMs, int transactionIntervalMs, int blockIntervalMs, int mempoolMaxSize, int maxTransactionsPerBlock
 ) {
 
     public SimulationConfig {
@@ -17,14 +17,14 @@ public record SimulationConfig(
             throw new IllegalArgumentException(
                     "Difficulty bits must be in [0, 256], got " + difficultyBits);
         }
-        if (totalTicks <= 0) {
-            throw new IllegalArgumentException("Total ticks must be positive");
+        if (durationMs <= 0) {
+            throw new IllegalArgumentException("Duration must be positive");
         }
-        if (ticksPerTransaction <= 0) {
-            throw new IllegalArgumentException("Ticks per transaction must be positive");
+        if (transactionIntervalMs <= 0) {
+            throw new IllegalArgumentException("Transaction interval must be positive");
         }
-        if (ticksPerBlock <= 0) {
-            throw new IllegalArgumentException("Ticks per block must be positive");
+        if (blockIntervalMs <= 0) {
+            throw new IllegalArgumentException("Block interval must be positive");
         }
         if (mempoolMaxSize <= 0) {
             throw new IllegalArgumentException("Mempool max size must be positive");

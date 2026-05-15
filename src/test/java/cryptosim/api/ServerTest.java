@@ -41,9 +41,9 @@ class ServerTest {
                   "numWallets": 5,
                   "initialBalancePerWallet": 1000,
                   "difficultyBits": 12,
-                  "totalTicks": 2000,
-                  "ticksPerTransaction": 100,
-                  "ticksPerBlock": 500,
+                  "durationMs": 500,
+                  "transactionIntervalMs": 50,
+                  "blockIntervalMs": 100,
                   "mempoolMaxSize": 100,
                   "maxTransactionsPerBlock": 10
                 }
@@ -86,9 +86,9 @@ class ServerTest {
                   "numWallets": 1,
                   "initialBalancePerWallet": 1000,
                   "difficultyBits": 12,
-                  "totalTicks": 2000,
-                  "ticksPerTransaction": 100,
-                  "ticksPerBlock": 500,
+                  "durationMs": 500,
+                  "transactionIntervalMs": 50,
+                  "blockIntervalMs": 100,
                   "mempoolMaxSize": 100,
                   "maxTransactionsPerBlock": 10
                 }

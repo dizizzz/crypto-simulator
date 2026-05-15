@@ -30,16 +30,16 @@
                 <input type="number" id="difficultyBits" value="12" min="0" max="24">
             </div>
             <div class="field">
-                <label for="totalTicks">Тривалість (тіків):</label>
-                <input type="number" id="totalTicks" value="10000" min="100">
+                <label for="durationMs">Тривалість (мс):</label>
+                <input type="number" id="durationMs" value="10000" min="100">
             </div>
             <div class="field">
-                <label for="ticksPerTransaction">Тіків між транзакціями:</label>
-                <input type="number" id="ticksPerTransaction" value="100" min="1">
+                <label for="transactionIntervalMs">Інтервал транзакцій (мс):</label>
+                <input type="number" id="transactionIntervalMs" value="100" min="1">
             </div>
             <div class="field">
-                <label for="ticksPerBlock">Тіків між блоками:</label>
-                <input type="number" id="ticksPerBlock" value="1000" min="1">
+                <label for="blockIntervalMs">Інтервал блоків (мс):</label>
+                <input type="number" id="blockIntervalMs" value="1000" min="1">
             </div>
             <div class="field">
                 <label for="mempoolMaxSize">Розмір мемпулу:</label>
@@ -72,7 +72,7 @@
 </main>
 
 <footer>
-    <p>Solomiia Bobiak ~ 2026 </p>
+    <p>Solomiia Bobiak</p>
 </footer>
 
 <script src="app.js"></script>

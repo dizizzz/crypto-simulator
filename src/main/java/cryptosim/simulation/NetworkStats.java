@@ -2,14 +2,14 @@ package cryptosim.simulation;
 
 public record NetworkStats(
         long submittedTransactions, long acceptedTransactions, long confirmedTransactions,
-        long totalBlocks, long totalTicks, long totalFeesPaid,
-        double averageBlockMiningTimeMs, double averageNonceAttempts, double averageConfirmationLatencyTicks
+        long totalBlocks, long durationMs, long totalFeesPaid,
+        double averageBlockMiningTimeMs, double averageNonceAttempts, double averageConfirmationLatencyMs
 ) {
 
     public NetworkStats {
         if (submittedTransactions < 0 || acceptedTransactions < 0
                 || confirmedTransactions < 0 || totalBlocks < 0
-                || totalTicks < 0 || totalFeesPaid < 0) {
+                || durationMs < 0 || totalFeesPaid < 0) {
             throw new IllegalArgumentException("Counts must be non-negative");
         }
         if (acceptedTransactions > submittedTransactions) {

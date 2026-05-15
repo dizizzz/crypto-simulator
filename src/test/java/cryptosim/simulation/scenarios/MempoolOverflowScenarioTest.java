@@ -55,7 +55,6 @@ class MempoolOverflowScenarioTest {
         Mempool mempool = new Mempool(mempoolSize);
         Wallet receiver = Wallet.create();
 
-        // Заповнюємо мемпул.
         List<Wallet> firstBatch = new ArrayList<>();
         for (int i = 0; i < mempoolSize; i++) {
             Wallet sender = Wallet.create();
@@ -69,7 +68,6 @@ class MempoolOverflowScenarioTest {
         int drainCount = 3;
         var drained = mempool.drain(drainCount);
 
-        // Тепер можемо додати нові.
         int addedAfterDrain = 0;
         for (int i = 0; i < drainCount; i++) {
             Wallet sender = Wallet.create();
