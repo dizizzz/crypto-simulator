@@ -14,58 +14,96 @@
 </header>
 
 <main>
-    <section class="config-section">
+    <section>
         <h2>Параметри симуляції</h2>
         <form id="config-form">
-            <div class="field">
-                <label for="numWallets">Кількість гаманців:</label>
-                <input type="number" id="numWallets" value="10" min="2" max="100">
-            </div>
-            <div class="field">
-                <label for="initialBalance">Початковий баланс:</label>
-                <input type="number" id="initialBalance" value="1000" min="0">
-            </div>
-            <div class="field">
-                <label for="difficultyBits">Складність (біт):</label>
-                <input type="number" id="difficultyBits" value="12" min="0" max="24">
-            </div>
-            <div class="field">
-                <label for="durationMs">Тривалість (мс):</label>
-                <input type="number" id="durationMs" value="10000" min="100">
-            </div>
-            <div class="field">
-                <label for="transactionIntervalMs">Інтервал транзакцій (мс):</label>
-                <input type="number" id="transactionIntervalMs" value="100" min="1">
-            </div>
-            <div class="field">
-                <label for="blockIntervalMs">Інтервал блоків (мс):</label>
-                <input type="number" id="blockIntervalMs" value="1000" min="1">
-            </div>
-            <div class="field">
-                <label for="mempoolMaxSize">Розмір мемпулу:</label>
-                <input type="number" id="mempoolMaxSize" value="100" min="1">
-            </div>
-            <div class="field">
-                <label for="seed">Seed (для відтворюваності):</label>
-                <input type="number" id="seed" value="42">
+            <div>
+                <div class="section-label">Мережа</div>
+                <div class="section-grid">
+                    <div class="field">
+                        <label for="numWallets">
+                            Кількість гаманців:
+                            <span class="tooltip" data-tip="Кількість учасників системи. Мінімум 2.">?</span>
+                        </label>
+                        <input type="number" id="numWallets" value="10" min="2" max="100">
+                    </div>
+                    <div class="field">
+                        <label for="initialBalance">
+                            Початковий баланс:
+                            <span class="tooltip" data-tip="Стартова сума у кожного гаманця. Майнер починає з нуля.">?</span>
+                        </label>
+                        <input type="number" id="initialBalance" value="1000" min="0">
+                    </div>
+                    <div class="field">
+                        <label for="mempoolMaxSize">
+                            Розмір мемпулу:
+                            <span class="tooltip" data-tip="Максимум транзакцій в очікуванні. Понад ліміт — відхиляються.">?</span>
+                        </label>
+                        <input type="number" id="mempoolMaxSize" value="100" min="1">
+                    </div>
+                </div>
             </div>
 
-            <button type="submit" id="run-btn">Запустити симуляцію</button>
+            <div>
+                <div class="section-label">Консенсус та час</div>
+                <div class="section-grid">
+                    <div class="field">
+                        <label for="difficultyBits">
+                            Складність (біт):
+                            <span class="tooltip" data-tip="Провідні нульові біти у хеші блоку. +1 біт удвічі складніше.">?</span>
+                        </label>
+                        <input type="number" id="difficultyBits" value="12" min="0" max="24">
+                        <div class="field-hint" id="difficultyHint">≈ <code>4 096</code> спроб nonce</div>
+                    </div>
+                    <div class="field">
+                        <label for="blockIntervalMs">
+                            Інтервал блоків (мс):
+                            <span class="tooltip" data-tip="Як часто майнер формує блок із мемпулу.">?</span>
+                        </label>
+                        <input type="number" id="blockIntervalMs" value="1000" min="1">
+                    </div>
+                    <div class="field">
+                        <label for="transactionIntervalMs">
+                            Інтервал транзакцій (мс):
+                            <span class="tooltip" data-tip="Період генерації транзакцій. Менше — вище навантаження.">?</span>
+                        </label>
+                        <input type="number" id="transactionIntervalMs" value="100" min="1">
+                    </div>
+                    <div class="field field-full">
+                        <label for="durationMs">
+                            Тривалість запуску (мс):
+                            <span class="tooltip" data-tip="Загальна тривалість симуляції у реальному часі.">?</span>
+                        </label>
+                        <input type="number" id="durationMs" value="10000" min="100">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <div class="seed-block">
+                    <label for="seed">Seed:</label>
+                    <input type="number" id="seed" value="42">
+                    <span class="tooltip" data-tip="Зерно генератора. Один seed — однакові результати.">?</span>
+                </div>
+                <button type="submit" id="run-btn">▶ Запустити симуляцію</button>
+            </div>
         </form>
     </section>
 
-    <section class="results-section" id="results-section" hidden>
+    <section id="results-section" hidden>
         <h2>Результати</h2>
         <div id="status"></div>
-        <div id="metrics"></div>
-        <div class="charts">
-            <div class="chart-container">
-                <h3>Розподіл балансів</h3>
-                <canvas id="balances-chart"></canvas>
-            </div>
-            <div class="chart-container">
-                <h3>Транзакції у блоках</h3>
-                <canvas id="blocks-chart"></canvas>
+        <div id="results-content">
+            <div id="metrics"></div>
+            <div class="charts">
+                <div class="chart-container">
+                    <h3>Розподіл балансів</h3>
+                    <canvas id="balances-chart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Транзакції у блоках</h3>
+                    <canvas id="blocks-chart"></canvas>
+                </div>
             </div>
         </div>
     </section>
