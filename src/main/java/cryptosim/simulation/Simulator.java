@@ -63,8 +63,16 @@ public final class Simulator {
                 random, wallets, blockchain.worldState());
         Miner miner = new Miner();
 
-        for (long ms = 0; ms < config.durationMs(); ms++) {
-            if (ms % config.transactionIntervalMs() == 0) {
+        long startTime = System.currentTimeMillis();
+        long nextTxTime = startTime;
+        long nextBlockTime = startTime + config.blockIntervalMs();
+        long endTime = startTime + config.durationMs();
+
+        while (System.currentTimeMillis() < endTime) {
+            long now = System.currentTimeMillis();
+            long ms = now - startTime;
+
+            if (now >= nextTxTime) {
                 Optional<Transaction> tx = txGenerator.next();
                 if (tx.isPresent()) {
                     submittedCount++;
@@ -73,10 +81,12 @@ public final class Simulator {
                         submittedAtMs.put(tx.get(), ms);
                     }
                 }
+                nextTxTime += config.transactionIntervalMs();
             }
 
-            if (ms > 0 && ms % config.blockIntervalMs() == 0) {
+            if (now >= nextBlockTime) {
                 mineBlock(blockchain, mempool, miner, minerAddress, ms);
+                nextBlockTime += config.blockIntervalMs();
             }
 
             Thread.sleep(1);
