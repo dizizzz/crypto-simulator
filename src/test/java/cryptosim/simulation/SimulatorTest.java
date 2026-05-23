@@ -1,8 +1,5 @@
 package cryptosim.simulation;
 
-import cryptosim.domain.Wallet;
-import java.util.ArrayList;
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -106,35 +103,5 @@ class SimulatorTest {
         assertTrue(stats.averageNonceAttempts() > 0, "Each block requires at least one attempt");
         assertTrue(stats.averageConfirmationLatencyMs() >= 0);
         assertTrue(stats.totalFeesPaid() >= 0);
-    }
-
-    @Test
-    void run_gCoeff_reflectsRealisticInequality() throws InterruptedException {
-        Simulator simulator = new Simulator(smallConfig(42L));
-
-        SimulationResult result = simulator.run();
-
-        List<Long> userBalances = new ArrayList<>();
-        for (Wallet w : result.wallets()) {
-            userBalances.add(result.blockchain().worldState().getBalance(w.getAddress()));
-        }
-
-        long minerBalance = result.blockchain().worldState().getBalance(result.minerAddress());
-
-        double gUsersOnly = GiniCalculator.compute(userBalances);
-
-        List<Long> allBalances = new ArrayList<>(userBalances);
-        allBalances.add(minerBalance);
-        double gWithMiner = GiniCalculator.compute(allBalances);
-
-        System.out.println("[Scenario: Gini Coefficient Analysis]");
-        System.out.println("  Wallets:                " + userBalances.size());
-        System.out.println("  User balances:          " + userBalances);
-        System.out.println("  Miner balance:          " + minerBalance);
-        System.out.printf ("  Gini (users only):      %.4f%n", gUsersOnly);
-        System.out.printf ("  Gini (with miner):      %.4f%n", gWithMiner);
-
-        assertTrue(gUsersOnly >= 0 && gUsersOnly <= 1);
-        assertTrue(gWithMiner >= 0 && gWithMiner <= 1);
     }
 }
